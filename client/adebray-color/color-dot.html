@@ -1,0 +1,42 @@
+<dom-module id="color-dot">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+
+			.color {
+				margin: 8px;
+				display: inline-block;
+				width: 10px;
+				height: 10px;
+				background-color: var(--custom-color);
+			}
+
+			.hori {
+				@apply(--layout-horizontal);
+				@apply(--layout-center);
+			}
+		</style>
+
+	<div class="hori">
+		<div class=color></div>{{text}}
+	</div>
+
+	</template>
+	<script>
+		Polymer({
+			is: 'color-dot',
+
+			properties: {
+				text: String,
+				colorhash: Object
+			},
+
+			attached: function () {
+				if (this.colorhash)
+					this.colorhash.fire('color-hash', this)
+			}
+		});
+	</script>
+</dom-module>

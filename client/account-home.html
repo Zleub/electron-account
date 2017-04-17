@@ -1,0 +1,78 @@
+<dom-module id="account-home">
+  <template>
+	<style>
+		:host {
+			display: block;
+			--paper-tab-ink: var(--primary-color);
+			--paper-tabs-selection-bar-color: var(--primary-color);
+		}
+
+		#content {
+			margin: 8px;
+		}
+	</style>
+
+	<color-hash></color-hash>
+
+	<paper-toolbar>
+		<div class="title">Hello World !</div>
+	</paper-toolbar>
+
+	<paper-tabs selected="{{selected}}">
+		<paper-tab>Tags</paper-tab>
+		<paper-tab>Operation</paper-tab>
+		<paper-tab>Summary</paper-tab>
+	</paper-tabs>
+
+	<iron-pages selected="{{selected}}">
+		<div id="tags"></div>
+		<div id="operations"></div>
+		<div id="summary"></div>
+	</iron-pages>
+
+  </template>
+  <script>
+	Polymer({
+	  is: 'account-home',
+
+	  properties: {
+		  selected: {
+			  type: Number,
+			  value: 2
+		  }
+	  },
+
+	  attached: function () {
+
+		let tags = require('./tag.json')
+		Object.keys(tags).forEach( k => {
+			let box = document.createElement('account-tags')
+			box.entitle = k
+			box.content = tags[k]
+			this.$.tags.appendChild(box)
+		})
+
+		let dbs = require('./db.json')
+		let db = dbs['unknown']
+		let op = document.createElement('account-operation')
+		op.title = 'unknown'
+		op.operations = db
+		this.$.operations.appendChild(op)
+
+		Object.keys(dbs).forEach( k => {
+			if (k == 'unknown')
+				return
+			let db = dbs[k]
+			let op = document.createElement('account-operation')
+			op.title = k
+			op.operations = db
+			this.$.operations.appendChild(op)
+		})
+
+		let summary = document.createElement('account-summary')
+		summary.data = dbs
+		this.$.summary.appendChild(summary)
+	  }
+	});
+  </script>
+</dom-module>

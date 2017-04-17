@@ -1,0 +1,52 @@
+<dom-module id="account-summary">
+<template>
+	<style>
+		:host {
+			display: block;
+		}
+
+		:host google-chart {
+			height: 50em;
+			width:50em;
+		}
+	</style>
+
+	<google-chart
+		type='pie'
+	></google-chart>
+</template>
+<script>
+	Polymer({
+		is: 'account-summary',
+
+		properties: {
+			data: Object
+		},
+
+		attached: function () {
+			let chart = this.querySelector('google-chart')
+			chart.cols = [
+				{ 'label': 'tag', 'type': 'string' },
+				{ 'label': 'count', 'type': 'number' }
+			]
+
+			chart.options = {
+				pieHole: 0.4,
+				slices: []
+			}
+
+			let rows = []
+			Object.keys(this.data).forEach( k => {
+				if (k == 'unknown')
+					return
+				rows.push( [k, Math.abs( this.data[k].reduce((p, e) => p + e.count, 0) )] )
+				// chart.options.slices.push( {color: document.querySelector('color-hash').getColor(k) } )
+			})
+
+			chart.rows = rows
+
+			this.appendChild(chart)
+		}
+	});
+  </script>
+</dom-module>

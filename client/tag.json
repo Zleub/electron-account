@@ -1,0 +1,68 @@
+{
+	"food": [
+		"pizza",
+		"burger",
+		"sarl mgh",
+		"delices   mo",
+		"so gusto",
+		"monoprix",
+		"carrefour",
+		"franprix",
+		"mc donald",
+		"pret a manger",
+		"dia",
+		"g20",
+		"amoumene moham",
+		"fam",
+		"leclerc",
+		"monop",
+		"le bon bo bun",
+		"sunny bagel",
+		"matsuri",
+		"longxiang",
+		"casino"
+	],
+	"music": [
+		"thomann",
+		"spotify",
+		"digitick",
+		"billetweb",
+		"bandcamp",
+		"duc des lombar"
+	],
+	"tabac": [
+		"tabac",
+		"elegance",
+		"rest snc ouraz",
+		"nanais",
+		"le landy",
+		"le boyard"
+	],
+	"transport": [
+		"ratp",
+		"sncf"
+	],
+	"amazon": [ "amazon" ],
+	"maison": [
+		"ousseynou",
+		"5449009",
+		"5449010",
+		"free",
+		"leroy merlin",
+		"castorama"
+	],
+	"alcool": [
+		"dacostalou",
+		"comptoir moder",
+		"moty",
+		"la poule au po",
+		"octopuss",
+		"le bloc"
+	],
+	"retrait": [
+		"retrait"
+	],
+	"dev": [
+		"online"
+	]
+}

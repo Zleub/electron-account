@@ -1,0 +1,59 @@
+<dom-module id="account-operation">
+  <template>
+    <style>
+      :host {
+        display: block;
+
+		margin: 8px;
+		border: 2px solid black;
+		border-radius: 4px;
+
+		--paper-toolbar-background: none;
+		--paper-toolbar-color: black;
+      }
+
+	  iron-collapse {
+		  max-height: 200px;
+		  overflow: auto;
+	  }
+    </style>
+	<paper-toolbar on-click="toggle">
+		<div style="background-color: {{color}}; width: 42px; height: inherit; transform:skewX(160deg)"></div>
+		<div class="title">{{title}}</div>
+		<div>{{amount}}</div>
+	</paper-toolbar>
+
+	<iron-collapse id="collapse">
+	  <template is="dom-repeat" items="{{operations}}" index-as="index">
+		  <div style="padding: 4px;">
+			  <div>{{item.date}}</div> {{item.label}}
+		  </div>
+	  </template>
+	</iron-collapse>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'account-operation',
+
+	  properties: {
+		  title: String,
+		  operations: Array,
+		  amount: Number,
+		  color: String,
+	  },
+
+	  toggle: function (e) {
+		  this.$.collapse.toggle()
+	  },
+
+	  attached: function () {
+		this.amount = parseInt( this.operations.reduce( (p, e) => {
+			return p + e.count
+		}, 0) )
+
+		this.color = document.querySelector('color-hash').colors[this.title]
+	  }
+    });
+  </script>
+</dom-module>

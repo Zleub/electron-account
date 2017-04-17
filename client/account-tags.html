@@ -1,0 +1,66 @@
+<dom-module id="account-tags">
+  <template>
+    <style>
+		:host {
+			display: block;
+			margin: 8px;
+			padding: 4px;
+		}
+
+		:host color-box {
+			border-width: 3px;
+			border-radius: 6px;
+		}
+
+		:host span {
+			font-family: 'Roboto', 'Noto', sans-serif;
+			-webkit-font-smoothing: antialiased;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			font-size: 20px;
+			font-weight: 400;
+			line-height: 1;
+
+			padding-left: 4px;
+		}
+
+		:host {
+			--paper-icon-button: {
+				width: 30px;
+				height: 30px;
+			}
+		}
+
+		/*:host paper-icon-button {
+			width: 12px;
+		}*/
+    </style>
+
+	<color-box>
+		<span>{{entitle}}</span>
+	</color-box>
+	<template is="dom-repeat" items="{{content}}" index-as="index">
+		<div style="display: inline-flex; margin: 8px;">{{item}}</div>
+		<paper-icon-button icon=create></paper-icon-button>
+		|
+	</template>
+	<paper-icon-button icon=add></paper-icon-button>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'account-tags',
+
+	  properties: {
+		  entitle: String,
+		  content: Array
+	  },
+
+	  attached: function () {
+		let c = document.querySelector('color-hash').getColor(this.entitle)
+		this.querySelector('color-box').customStyle['--custom-color'] = c
+	  }
+    });
+  </script>
+</dom-module>
