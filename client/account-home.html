@@ -14,6 +14,20 @@
 
 	<color-hash></color-hash>
 
+	<iron-ajax
+	  auto
+	  url="./tag.json"
+	  handle-as="json"
+	  last-response="{{tags}}">
+  	</iron-ajax>
+	<iron-ajax
+	  auto
+	  url="./db.json"
+	  handle-as="json"
+	  last-response="{{dbs}}">
+  	</iron-ajax>
+
+
 	<paper-toolbar>
 		<div class="title">Hello World !</div>
 	</paper-toolbar>
@@ -39,12 +53,15 @@
 		  selected: {
 			  type: Number,
 			  value: 2
-		  }
+		  },
+		  tags: Array,
+		  dbs: Object
 	  },
 
 	  attached: function () {
+		  console.log(this.tags, this.dbs)
 
-		let tags = require('./tag.json')
+		let tags = this.tags
 		Object.keys(tags).forEach( k => {
 			let box = document.createElement('account-tags')
 			box.entitle = k
@@ -52,7 +69,7 @@
 			this.$.tags.appendChild(box)
 		})
 
-		let dbs = require('./db.json')
+		let dbs = this.dbs
 		let db = dbs['unknown']
 		let op = document.createElement('account-operation')
 		op.title = 'unknown'
