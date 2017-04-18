@@ -58,10 +58,11 @@
 		  dbs: Object
 	  },
 
-	  attached: function () {
-		  console.log(this.tags, this.dbs)
+	observers: [
+	     '_requestsFinished(tags, dbs)'
+	 ],
 
-		let tags = this.tags
+	_requestsFinished: function (tags, dbs) {
 		Object.keys(tags).forEach( k => {
 			let box = document.createElement('account-tags')
 			box.entitle = k
@@ -69,7 +70,6 @@
 			this.$.tags.appendChild(box)
 		})
 
-		let dbs = this.dbs
 		let db = dbs['unknown']
 		let op = document.createElement('account-operation')
 		op.title = 'unknown'
