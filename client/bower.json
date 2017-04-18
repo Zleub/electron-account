@@ -1,0 +1,23 @@
+{
+  "name": "client",
+  "homepage": "https://github.com/Zleub/electron-account",
+  "authors": [
+    "Zleub <debray.arnaud@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "iron-elements": "^1.0.10",
+    "paper-elements": "^1.0.7",
+    "google-web-components": "^1.1.1"
+  }
+}
