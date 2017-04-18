@@ -53,11 +53,14 @@
       is: 'account-tags',
 
 	  properties: {
-		  entitle: String,
+		  entitle: {
+			  type: String,
+			  observer: "colorize"
+		  },
 		  content: Array
 	  },
 
-	  attached: function () {
+	  colorize: function () {
 		let c = document.querySelector('color-hash').getColor(this.entitle)
 		this.querySelector('color-box').customStyle['--custom-color'] = c
 	  }

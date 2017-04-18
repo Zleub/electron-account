@@ -11,9 +11,7 @@
 		}
 	</style>
 
-	<google-chart
-		type='pie'
-	></google-chart>
+	<google-chart type='pie'></google-chart>
 </template>
 <script>
 	Polymer({
@@ -21,6 +19,15 @@
 
 		properties: {
 			data: Object
+		},
+
+		listeners: {
+			'account-show': 'log'
+		},
+
+		log: function (e) {
+			document.querySelector('google-chart').redraw()
+			console.log('log', e)
 		},
 
 		attached: function () {
@@ -40,7 +47,7 @@
 				if (k == 'unknown')
 					return
 				rows.push( [k, Math.abs( this.data[k].reduce((p, e) => p + e.count, 0) )] )
-				// chart.options.slices.push( {color: document.querySelector('color-hash').getColor(k) } )
+				chart.options.slices.push( {color: one.color(document.querySelector('color-hash').getColor(k)).css() } )
 			})
 
 			chart.rows = rows

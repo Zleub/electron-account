@@ -4,6 +4,7 @@
       :host {
         display: block;
 
+		/*width: 45%;*/
 		margin: 8px;
 		border: 2px solid black;
 		border-radius: 4px;
@@ -16,7 +17,9 @@
 		  max-height: 200px;
 		  overflow: auto;
 	  }
+
     </style>
+
 	<paper-toolbar on-click="toggle">
 		<div style="background-color: {{color}}; width: 42px; height: inherit; transform:skewX(160deg)"></div>
 		<div class="title">{{title}}</div>
@@ -26,7 +29,8 @@
 	<iron-collapse id="collapse">
 	  <template is="dom-repeat" items="{{operations}}" index-as="index">
 		  <div style="padding: 4px;">
-			  <div>{{item.date}}</div> {{item.label}}
+			  <div>{{item.date}}</div>
+			  <span class="label">{{item.label}}</span>
 		  </div>
 	  </template>
 	</iron-collapse>

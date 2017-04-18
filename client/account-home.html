@@ -52,7 +52,7 @@
 	  properties: {
 		  selected: {
 			  type: Number,
-			  value: 2
+			  value: 1
 		  },
 		  tags: Array,
 		  dbs: Object
@@ -61,6 +61,15 @@
 	observers: [
 	     '_requestsFinished(tags, dbs)'
 	 ],
+
+	 listeners: {
+		 'iron-select': 'log'
+	 },
+
+	 log: function (e) {
+		document.querySelector('account-summary').fire('account-show')
+	 },
+
 
 	_requestsFinished: function (tags, dbs) {
 		Object.keys(tags).forEach( k => {
