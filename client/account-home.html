@@ -10,6 +10,7 @@
 		#content {
 			margin: 8px;
 		}
+
 	</style>
 
 	<color-hash></color-hash>
@@ -38,8 +39,24 @@
 		<paper-tab>Summary</paper-tab>
 	</paper-tabs>
 
+	<paper-button raised on-tap="sync">Sync</paper-button>
+	<paper-button raised on-tap="save">Save</paper-button>
+	<paper-toast><div id="msg"></div></paper-toast>
+
+	<paper-dialog id='modal-editable' modal>
+	<div id="content" style="border: 1px solid black" contenteditable></div>
+	<div class="buttons">
+		<paper-button dialog-dismiss autofocus>Cancel</paper-button>
+		<paper-button dialog-confirm>Accept</paper-button>
+	</div>
+	</paper-dialog>
+
 	<iron-pages selected="{{selected}}">
-		<div id="tags"></div>
+		<div id="tags">
+			<template is="dom-repeat" items="{{getTags(tags)}}" index-as="index">
+				<account-tags entitle={{item.title}} content={{item.content}}></account-tags>
+			</template>
+		</div>
 		<div id="operations"></div>
 		<div id="summary"></div>
 	</iron-pages>
@@ -47,37 +64,113 @@
   </template>
   <script>
 	Polymer({
-	  is: 'account-home',
+	is: 'account-home',
 
-	  properties: {
-		  selected: {
-			  type: Number,
-			  value: 1
-		  },
-		  tags: Array,
-		  dbs: Object
-	  },
+	properties: {
+		selected: {
+			type: Number,
+			value: 0
+		},
+		tags: Array,
+		dbs: Object
+	},
 
 	observers: [
-	     '_requestsFinished(tags, dbs)'
-	 ],
+		'_requestsFinished(tags, dbs)'
+	],
 
-	 listeners: {
-		 'iron-select': 'log'
-	 },
+	listeners: {
+		'iron-select': 'refresh',
+		'iron-overlay-closed': 'log'
+	},
 
-	 log: function (e) {
+	refresh: function (e) {
 		document.querySelector('account-summary').fire('account-show')
-	 },
+	},
 
+	log: function (e) {
+		if (e.detail.confirmed) {
+			let {entitle, index} = e.target.data
+			let tags = this.tags[entitle]
+
+			tags.splice(index, 1, e.target.querySelector('#content').innerText)
+			// this.splice('tags.' + entitle, index, 1, e.target.querySelector('#content').innerText)
+			// this.notifyPath('tags')
+			// this.notifyPath('tags.' + entitle)
+
+			// this.querySelector('.' + entitle).notify()
+			this.set('tags.' + entitle, [])
+			this.set('tags.' + entitle, tags)
+
+		}
+	},
+
+	sync: function () {
+		if( this.querySelector('paper-toast').opened )
+			return
+
+		let stack = []
+
+		Object.keys(this.dbs).forEach( k => {
+			this.dbs[k].forEach( (e, i) => {
+				let {date, label, count} = e
+
+				let r = Object.keys(this.tags).reduce( (p, k) => {
+					let tags = this.tags[k]
+
+					let r = tags.reduce( (p, _) => {
+						return p || label.toLowerCase().match(_.toLowerCase())
+					}, undefined)
+
+					return p || (r ? k : undefined)
+				}, undefined) || 'unknown'
+
+				if (r != k)
+				{
+					stack.push({
+						index: i,
+						from: k,
+						to: r,
+						element: e
+					})
+				}
+
+			})
+		})
+
+		let i = stack.length
+		let msg = this.$.msg
+		i > 0 ? msg.innerHTML = '' : msg.innerHTML = 'Nothing to be updated'
+		while (i--) {
+			let {index, from, to, element} = stack[i]
+
+			this.dbs[from].splice(index, 1)
+			this.dbs[to].push(element)
+
+			msg.innerHTML += `${from} -> ${to}<br>`
+		}
+
+		let toast = this.querySelector('paper-toast')
+		toast.appendChild(msg)
+		toast.show()
+		// toast.addEventListener('iron-overlay-closed', (e) => console.log(e))
+	},
+
+	getTags: function (t) {
+		console.log('getTags')
+		return Object.keys(t).map( k => {
+			return { title: k, content: t[k] }
+		} )
+	},
 
 	_requestsFinished: function (tags, dbs) {
-		Object.keys(tags).forEach( k => {
-			let box = document.createElement('account-tags')
-			box.entitle = k
-			box.content = tags[k]
-			this.$.tags.appendChild(box)
-		})
+		// Object.keys(tags).forEach( k => {
+		// 	let box = document.createElement('account-tags')
+		// 	box.entitle = k
+		// 	box.content = tags[k]
+		// 	box.className += k
+		// 	this.$.tags.appendChild(box)
+		// })
 
 		let db = dbs['unknown']
 		let op = document.createElement('account-operation')

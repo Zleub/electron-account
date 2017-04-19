@@ -22,12 +22,11 @@
 		},
 
 		listeners: {
-			'account-show': 'log'
+			'account-show': 'redraw'
 		},
 
-		log: function (e) {
+		redraw: function (e) {
 			document.querySelector('google-chart').redraw()
-			console.log('log', e)
 		},
 
 		attached: function () {

@@ -32,9 +32,6 @@
 			}
 		}
 
-		/*:host paper-icon-button {
-			width: 12px;
-		}*/
     </style>
 
 	<color-box>
@@ -42,7 +39,7 @@
 	</color-box>
 	<template is="dom-repeat" items="{{content}}" index-as="index">
 		<div style="display: inline-flex; margin: 8px;">{{item}}</div>
-		<paper-icon-button icon=create></paper-icon-button>
+		<paper-icon-button icon=create on-tap='edit'></paper-icon-button>
 		|
 	</template>
 	<paper-icon-button icon=add></paper-icon-button>
@@ -63,6 +60,19 @@
 	  colorize: function () {
 		let c = document.querySelector('color-hash').getColor(this.entitle)
 		this.querySelector('color-box').customStyle['--custom-color'] = c
+	},
+
+	  edit: function (e) {
+		  let {index, item} = e.model
+
+		  console.log(this.entitle, index, item)
+		  let modal = document.body.querySelector('#modal-editable')
+		  modal.querySelector('#content').innerText = item
+		  modal.data = {
+			  entitle: this.entitle,
+			  index: index
+		  }
+		  modal.toggle()
 	  }
     });
   </script>
