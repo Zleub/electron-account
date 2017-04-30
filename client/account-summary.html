@@ -6,51 +6,83 @@
 		}
 
 		:host google-chart {
-			height: 50em;
-			width:50em;
+			width: 100%;
 		}
 	</style>
 
-	<google-chart type='pie'></google-chart>
+
+	<paper-tabs scrollable selected={{page}}>
+		<paper-tab>All</paper-tab>
+		<template is="dom-repeat" items="{{getMonth(data)}}" index-as="index">
+			<paper-tab>{{item}}</paper-tab>
+		</template>
+	</paper-tabs>
+
+	<google-chart type='bar'></google-chart>
 </template>
 <script>
 	Polymer({
 		is: 'account-summary',
 
+		behaviors: [ Polymer.IronResizableBehavior ],
+
 		properties: {
+			page: {
+				type: Number,
+				value: 0
+			},
 			data: Object
 		},
 
 		listeners: {
-			'account-show': 'redraw'
+			'iron-resize': 'redraw'
 		},
 
 		redraw: function (e) {
+			this.doRows()
+		},
+
+		doRows: function () {
+			let chart = this.querySelector('google-chart')
+
+			let date = this.querySelectorAll('paper-tab')[this.page].innerText.trim()
+			chart.set('rows', Object.keys(this.data).map( (k, i, array) => {
+				return [k, this.data[k].filter( e => {
+					let d = new Date(e.date)
+					return `${d.getFullYear().toString()} - ${(d.getMonth() + 1).toString()}` == date || date == 'All' ? true : false
+				}).reduce((p, e) => p + e.count, 0), one.color(document.querySelector('color-hash').getColor(k)).css()]
+			}))
+
 			document.querySelector('google-chart').redraw()
+		},
+
+		getMonth: function (data) {
+			let s = []
+
+			Object.keys(data).forEach( k => {
+				data[k].forEach( o => {
+					let d = new Date(o.date)
+					if ( s.filter( e => e == `${d.getFullYear().toString()} - ${(d.getMonth() + 1).toString()}`).length == 0 )
+					s.push( `${d.getFullYear().toString()} - ${(d.getMonth() + 1).toString()}` )
+				})
+			})
+
+			return s
 		},
 
 		attached: function () {
 			let chart = this.querySelector('google-chart')
 			chart.cols = [
 				{ 'label': 'tag', 'type': 'string' },
-				{ 'label': 'count', 'type': 'number' }
+				{ 'label': 'count', 'type': 'number' },
+				{ 'role': 'style', 'type': 'string' }
 			]
 
 			chart.options = {
-				pieHole: 0.4,
-				slices: []
+				legend: { position: 'none' }
 			}
 
-			let rows = []
-			Object.keys(this.data).forEach( k => {
-				if (k == 'unknown')
-					return
-				rows.push( [k, Math.abs( this.data[k].reduce((p, e) => p + e.count, 0) )] )
-				chart.options.slices.push( {color: one.color(document.querySelector('color-hash').getColor(k)).css() } )
-			})
-
-			chart.rows = rows
-
+			this.doRows()
 			this.appendChild(chart)
 		}
 	});

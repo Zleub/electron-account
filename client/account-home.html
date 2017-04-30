@@ -27,20 +27,28 @@
 	  handle-as="json"
 	  last-response="{{dbs}}">
   	</iron-ajax>
+	<iron-ajax
+	  id="save"
+	  method="POST"
+	  url="file:///save:8000"
+	  body='{"part":"snippet", "q":"polymer", "key": "YOUTUBE_API_KEY", "type": "video"}'
+	  handle-as="text"
+	  on-response="handleResponse">
+  	</iron-ajax>
 
-
-	<paper-toolbar>
+	<paper-toolbar class="medium-tall">
 		<div class="title">Hello World !</div>
+		<paper-button raised on-tap="sync">Sync</paper-button>
+		<paper-button raised on-tap="save">Save</paper-button>
+
+		<paper-tabs class="bottom" selected="{{selected}}">
+			<paper-tab>Tags</paper-tab>
+			<paper-tab>Operation</paper-tab>
+			<paper-tab>Summary</paper-tab>
+		</paper-tabs>
 	</paper-toolbar>
 
-	<paper-tabs selected="{{selected}}">
-		<paper-tab>Tags</paper-tab>
-		<paper-tab>Operation</paper-tab>
-		<paper-tab>Summary</paper-tab>
-	</paper-tabs>
 
-	<paper-button raised on-tap="sync">Sync</paper-button>
-	<paper-button raised on-tap="save">Save</paper-button>
 	<paper-toast><div id="msg"></div></paper-toast>
 
 	<paper-dialog id='modal-editable' modal>
@@ -53,11 +61,15 @@
 
 	<iron-pages selected="{{selected}}">
 		<div id="tags">
-			<template is="dom-repeat" items="{{getTags(tags)}}" index-as="index">
+			<template is="dom-repeat" items="{{getTags(tags)}}">
 				<account-tags entitle={{item.title}} content={{item.content}}></account-tags>
 			</template>
 		</div>
-		<div id="operations"></div>
+		<div id="operations">
+			<template is="dom-repeat" items="{{getDb(dbs)}}">
+				<account-operation title="{{item.title}}" operations={{item.operations}}></account-operation>
+			</template>
+		</div>
 		<div id="summary"></div>
 	</iron-pages>
 
@@ -69,9 +81,12 @@
 	properties: {
 		selected: {
 			type: Number,
-			value: 0
+			value: 2
 		},
-		tags: Array,
+		tags: {
+			type: Object,
+			notify: true
+		},
 		dbs: Object
 	},
 
@@ -81,27 +96,65 @@
 
 	listeners: {
 		'iron-select': 'refresh',
-		'iron-overlay-closed': 'log'
+		'iron-overlay-closed': 'editTag'
+	},
+
+	handleResponse: function (e) {
+		console.log(e)
+	},
+
+	save: function (e) {
+		this.$.save.generateRequest()
 	},
 
 	refresh: function (e) {
-		document.querySelector('account-summary').fire('account-show')
+		// if (document.querySelector('account-summary'))
+			document.querySelector('account-summary').redraw()
 	},
 
-	log: function (e) {
+	getTags: function (tags) {
+		return Object.keys(tags).map( k => {
+			return { title: k, content: tags[k] }
+		})
+	},
+
+	getDb: function (dbs) {
+		return Object.keys(dbs).sort( (a, b) => {
+			if (a == 'unknown')
+				return -1
+			else if (b == 'unknown')
+				return 1
+		}).map( k => {
+			return {
+				title: k,
+				operations: dbs[k]
+			}
+		})
+	},
+
+	editTag: function (e) {
 		if (e.detail.confirmed) {
 			let {entitle, index} = e.target.data
 			let tags = this.tags[entitle]
+			let text = e.target.querySelector('#content').innerText
 
-			tags.splice(index, 1, e.target.querySelector('#content').innerText)
-			// this.splice('tags.' + entitle, index, 1, e.target.querySelector('#content').innerText)
-			// this.notifyPath('tags')
-			// this.notifyPath('tags.' + entitle)
+			console.log(text, index, this.tags[entitle].length)
+			if (index == this.tags[entitle].length)
+				this.push('tags.' + entitle, text)
+			else if (text == '')
+				this.splice('tags.' + entitle, index, 1)
+			else
+				this.splice('tags.' + entitle, index, 1, text)
 
-			// this.querySelector('.' + entitle).notify()
-			this.set('tags.' + entitle, [])
-			this.set('tags.' + entitle, tags)
+			let i
+			Object.keys(this.tags).forEach( (k, _) => {
+				if (k == entitle) {
+					i = _
+				}
+			})
 
+			this.querySelectorAll('account-tags')[i].contentChanged()
+			document.querySelector('account-summary').redraw()
 		}
 	},
 
@@ -141,53 +194,35 @@
 		let i = stack.length
 		let msg = this.$.msg
 		i > 0 ? msg.innerHTML = '' : msg.innerHTML = 'Nothing to be updated'
+
+		let notif = {}
 		while (i--) {
 			let {index, from, to, element} = stack[i]
 
-			this.dbs[from].splice(index, 1)
-			this.dbs[to].push(element)
+			this.splice(`dbs.${from}`, index, 1)
+			this.push(`dbs.${to}`, element)
 
 			msg.innerHTML += `${from} -> ${to}<br>`
+			notif[from] = true
+			notif[to] = true
 		}
+
+		this.querySelectorAll('account-operation').forEach( e => {
+			Object.keys(notif).forEach( k => {
+				if (e.title == k) {
+					e.operationsChanged()
+				}
+			})
+		})
+
+		document.querySelector('account-summary').redraw()
 
 		let toast = this.querySelector('paper-toast')
 		toast.appendChild(msg)
 		toast.show()
-		// toast.addEventListener('iron-overlay-closed', (e) => console.log(e))
-	},
-
-	getTags: function (t) {
-		console.log('getTags')
-		return Object.keys(t).map( k => {
-			return { title: k, content: t[k] }
-		} )
 	},
 
 	_requestsFinished: function (tags, dbs) {
-		// Object.keys(tags).forEach( k => {
-		// 	let box = document.createElement('account-tags')
-		// 	box.entitle = k
-		// 	box.content = tags[k]
-		// 	box.className += k
-		// 	this.$.tags.appendChild(box)
-		// })
-
-		let db = dbs['unknown']
-		let op = document.createElement('account-operation')
-		op.title = 'unknown'
-		op.operations = db
-		this.$.operations.appendChild(op)
-
-		Object.keys(dbs).forEach( k => {
-			if (k == 'unknown')
-				return
-			let db = dbs[k]
-			let op = document.createElement('account-operation')
-			op.title = k
-			op.operations = db
-			this.$.operations.appendChild(op)
-		})
-
 		let summary = document.createElement('account-summary')
 		summary.data = dbs
 		this.$.summary.appendChild(summary)

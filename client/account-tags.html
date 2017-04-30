@@ -37,43 +37,59 @@
 	<color-box>
 		<span>{{entitle}}</span>
 	</color-box>
-	<template is="dom-repeat" items="{{content}}" index-as="index">
+	<template id="tst" is="dom-repeat" items="{{content}}">
 		<div style="display: inline-flex; margin: 8px;">{{item}}</div>
 		<paper-icon-button icon=create on-tap='edit'></paper-icon-button>
 		|
 	</template>
-	<paper-icon-button icon=add></paper-icon-button>
+	<paper-icon-button icon=add on-tap=add></paper-icon-button>
 
   </template>
   <script>
     Polymer({
-      is: 'account-tags',
+	    is: 'account-tags',
 
-	  properties: {
-		  entitle: {
-			  type: String,
-			  observer: "colorize"
-		  },
-		  content: Array
-	  },
+		properties: {
+			entitle: {
+				type: String,
+				observer: "colorize"
+			},
+			content: {
+				type: Array,
+				notify: true
+			}
+		},
+		
+		contentChanged: function (e) {
+				this.$.tst.render()
+		},
 
-	  colorize: function () {
-		let c = document.querySelector('color-hash').getColor(this.entitle)
-		this.querySelector('color-box').customStyle['--custom-color'] = c
-	},
+		colorize: function () {
+			let c = document.querySelector('color-hash').getColor(this.entitle)
+			this.querySelector('color-box').customStyle['--custom-color'] = c
+		},
 
-	  edit: function (e) {
-		  let {index, item} = e.model
+		edit: function (e) {
+			let {index, item} = e.model
 
-		  console.log(this.entitle, index, item)
-		  let modal = document.body.querySelector('#modal-editable')
-		  modal.querySelector('#content').innerText = item
-		  modal.data = {
-			  entitle: this.entitle,
-			  index: index
-		  }
-		  modal.toggle()
-	  }
+			let modal = document.body.querySelector('#modal-editable')
+			modal.querySelector('#content').innerText = item
+			modal.data = {
+				entitle: this.entitle,
+				index: index
+			}
+			modal.toggle()
+		},
+
+		add: function (e) {
+			let modal = document.body.querySelector('#modal-editable')
+			modal.querySelector('#content').innerText = ''
+			modal.data = {
+				entitle: this.entitle,
+				index: this.content.length
+			}
+			modal.toggle()
+		}
     });
   </script>
 </dom-module>
