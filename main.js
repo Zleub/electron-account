@@ -1,13 +1,19 @@
 const electron = require('electron')
+const ipc = electron.ipcMain
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 
 const path = require('path')
 const url = require('url')
+const http = require('http')
 
 let mainWindow
 
 function createWindow () {
+  http.createServer( (req, res) => {
+	  console.log(req)
+  } ).listen(8000)
+
   mainWindow = new BrowserWindow({width: 800, height: 600})
 
   mainWindow.loadURL(url.format({
